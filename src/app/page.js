@@ -1,103 +1,236 @@
-import Image from "next/image";
+'use client'; // Enable client-side rendering for interactivity
+
+import { useState, useEffect } from 'react';
+import Item from '@/components/Item';
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.js
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  // Initial data for each section
+  const initialSkills = [
+  ];
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+  const initialProjects = [
+  ];
+
+  const initialInterviews = [
+  ];
+
+  const initialExtras = [
+  ];
+
+  // State for each section
+  const [skills, setSkills] = useState(initialSkills);
+  const [projects, setProjects] = useState(initialProjects);
+  const [interviews, setInterviews] = useState(initialInterviews);
+  const [extras, setExtras] = useState(initialExtras);
+
+  // State for input fields
+  const [skillInput, setSkillInput] = useState({ name: '', link: '' });
+  const [projectInput, setProjectInput] = useState({ name: '', link: '' });
+  const [interviewInput, setInterviewInput] = useState({ name: '', link: '' });
+  const [extraInput, setExtraInput] = useState({ name: '', link: '' });
+
+  // Load data from localStorage on mount
+  useEffect(() => {
+    const savedSkills = localStorage.getItem('skills');
+    const savedProjects = localStorage.getItem('projects');
+    const savedInterviews = localStorage.getItem('interviews');
+    const savedExtras = localStorage.getItem('extras');
+
+    if (savedSkills) setSkills(JSON.parse(savedSkills));
+    if (savedProjects) setProjects(JSON.parse(savedProjects));
+    if (savedInterviews) setInterviews(JSON.parse(savedInterviews));
+    if (savedExtras) setExtras(JSON.parse(savedExtras));
+  }, []);
+
+  // Save data to localStorage whenever the lists change
+  useEffect(() => {
+    localStorage.setItem('skills', JSON.stringify(skills));
+    localStorage.setItem('projects', JSON.stringify(projects));
+    localStorage.setItem('interviews', JSON.stringify(interviews));
+    localStorage.setItem('extras', JSON.stringify(extras));
+  }, [skills, projects, interviews, extras]);
+
+  // Function to add an item to a list
+  const addItem = (list, setList, input, setInput) => {
+    if (input.name.trim()) {
+      setList([...list, { name: input.name, link: input.link || '', completed: false }]);
+      setInput({ name: '', link: '' }); // Clear input fields
+    }
+  };
+
+  // Function to toggle completion
+  const toggleComplete = (list, setList, index) => {
+    const updatedList = [...list];
+    updatedList[index].completed = !updatedList[index].completed;
+    updatedList.sort((a, b) => a.completed - b.completed); // Sort: incomplete first
+    setList(updatedList);
+  };
+
+  // Function to delete an item
+  const deleteItem = (list, setList, index) => {
+    const updatedList = list.filter((_, i) => i !== index);
+    setList(updatedList);
+  };
+
+  return (
+    <main className="min-h-screen bg-black text-white p-8">
+      <div className="flex gap-6">
+        {/* Coding Skills */}
+        <div className="coding-skills w-1/4 border-2 border-gray-600 p-4 rounded-lg">
+          <h3 className="text-xl font-bold mb-4">Coding Skills</h3>
+          <div className="flex flex-col gap-2 mb-4">
+            <input
+              type="text"
+              placeholder="Skill Name"
+              value={skillInput.name}
+              onChange={(e) => setSkillInput({ ...skillInput, name: e.target.value })}
+              className="p-2 rounded text-white border"
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+            <input
+              type="text"
+              placeholder="Link"
+              value={skillInput.link}
+              onChange={(e) => setSkillInput({ ...skillInput, link: e.target.value })}
+              className="p-2 rounded text-white border"
+            />
+            <button
+              onClick={() => addItem(skills, setSkills, skillInput, setSkillInput)}
+              className="bg-blue-600 hover:bg-blue-700 p-2 rounded"
+            >
+              Add Skill
+            </button>
+          </div>
+          <div className="flex flex-col gap-2">
+            {skills.map((item, index) => (
+              <Item
+                key={index}
+                title={item.name}
+                link_url={item.link}
+                completed={item.completed}
+                onToggle={() => toggleComplete(skills, setSkills, index)}
+                onDelete={() => deleteItem(skills, setSkills, index)}
+              />
+            ))}
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+
+        {/* NextJs Projects */}
+        <div className="nextjs-projects w-1/4 border-2 border-gray-300 p-4 rounded-lg">
+          <h2 className="text-xl font-bold mb-4">NextJs Projects</h2>
+          <div className="flex flex-col gap-2 mb-4">
+            <input
+              type="text"
+              placeholder="Project Name"
+              value={projectInput.name}
+              onChange={(e) => setProjectInput({ ...projectInput, name: e.target.value })}
+              className="p-2 rounded text-white border border"
+            />
+            <input
+              type="text"
+              placeholder="Link"
+              value={projectInput.link}
+              onChange={(e) => setProjectInput({ ...projectInput, link: e.target.value })}
+              className="p-2 rounded text-white border"
+            />
+            <button
+              onClick={() => addItem(projects, setProjects, projectInput, setProjectInput)}
+              className="bg-blue-600 hover:bg-blue-700 p-2 rounded"
+            >
+              Add Project
+            </button>
+          </div>
+          <div className="flex flex-col gap-2">
+            {projects.map((item, index) => (
+              <Item
+                key={index}
+                title={item.name}
+                link_url={item.link}
+                completed={item.completed}
+                onToggle={() => toggleComplete(projects, setProjects, index)}
+                onDelete={() => deleteItem(projects, setProjects, index)}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Interview Series */}
+        <div className="interview-series w-1/4 border-2 border-gray-600 p-4 rounded-lg">
+          <h2 className="text-xl font-bold mb-4">Interview Series</h2>
+          <div className="flex flex-col gap-2 mb-4">
+            <input
+              type="text"
+              placeholder="Interview Name"
+              value={interviewInput.name}
+              onChange={(e) => setInterviewInput({ ...interviewInput, name: e.target.value })}
+              className="p-2 rounded text-white border"
+            />
+            <input
+              type="text"
+              placeholder="Link"
+              value={interviewInput.link}
+              onChange={(e) => setInterviewInput({ ...interviewInput, link: e.target.value })}
+              className="p-2 rounded text-white border"
+            />
+            <button
+              onClick={() => addItem(interviews, setInterviews, interviewInput, setInterviewInput)}
+              className="bg-blue-600 hover:bg-blue-700 p-2 rounded"
+            >
+              Add Interview
+            </button>
+          </div>
+          <div className="flex flex-col gap-2">
+            {interviews.map((item, index) => (
+              <Item
+                key={index}
+                title={item.name}
+                link_url={item.link}
+                completed={item.completed}
+                onToggle={() => toggleComplete(interviews, setInterviews, index)}
+                onDelete={() => deleteItem(interviews, setInterviews, index)}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Extras and OneShots */}
+        <div className="extras-oneshots w-1/4 border-2 border-gray-600 p-4 rounded-lg">
+          <h2 className="text-xl font-bold mb-4">Extras and OneShots</h2>
+          <div className="flex flex-col gap-2 mb-4">
+            <input
+              type="text"
+              placeholder="Extra Name"
+              value={extraInput.name}
+              onChange={(e) => setExtraInput({ ...extraInput, name: e.target.value })}
+              className="p-2 rounded text-white border"
+            />
+            <input
+              type="text"
+              placeholder="Link"
+              value={extraInput.link}
+              onChange={(e) => setExtraInput({ ...extraInput, link: e.target.value })}
+              className="p-2 rounded text-white border"
+            />
+            <button
+              onClick={() => addItem(extras, setExtras, extraInput, setExtraInput)}
+              className="bg-blue-600 hover:bg-blue-700 p-2 rounded"
+            >
+              Add Extra
+            </button>
+          </div>
+          <div className="flex flex-col gap-2">
+            {extras.map((item, index) => (
+              <Item
+                key={index}
+                title={item.name}
+                link_url={item.link}
+                completed={item.completed}
+                onToggle={() => toggleComplete(extras, setExtras, index)}
+                onDelete={() => deleteItem(extras, setExtras, index)}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    </main>
   );
 }
